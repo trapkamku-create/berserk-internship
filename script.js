@@ -45,8 +45,8 @@ const testData = {
 };
 
 let currentDiscipline = null;
-let currentQuestionIndex = 0; // Индекс текущего вопроса
-let userAnswers = []; // Массив для сохранения ответов пользователя
+let currentQuestionIndex = 0; 
+let userAnswers = []; 
 let timerInterval = null; 
 let timeLeft = 15; 
 
@@ -59,15 +59,21 @@ function openDiscipline(id) {
     const testContainer = document.getElementById('test-container');
     const timerDisplay = document.getElementById('timer-display');
     const resultMsg = document.getElementById('result-message');
+    const closeBtn = document.getElementById('close-modal-btn'); // Кнопка закрытия
 
     // Сброс состояния
     testContainer.classList.add('hidden');
     resultMsg.classList.add('hidden');
     timerDisplay.classList.add('hidden');
+    closeBtn.classList.remove('hidden'); // Показываем кнопку "Закрыть" при открытии окна
     clearInterval(timerInterval);
     currentQuestionIndex = 0;
     userAnswers = [];
     
+    // Удаляем старую кнопку "Далее", если она есть, чтобы не было дублей
+    const oldNextBtn = document.getElementById('test-next-btn');
+    if (oldNextBtn) oldNextBtn.remove();
+
     const titles = {
         law: "Законодательство",
         med: "Тактическая медицина",
@@ -87,22 +93,24 @@ function openDiscipline(id) {
 function startTest() {
     const startBtn = document.getElementById('start-test-btn');
     const testContainer = document.getElementById('test-container');
-    
+    const closeBtn = document.getElementById('close-modal-btn'); // Кнопка закрытия
+
     startBtn.classList.add('hidden');
     testContainer.classList.remove('hidden');
+    closeBtn.classList.add('hidden'); // ПРЯЧЕМ КНОПКУ ЗАКРЫТЬ!
 
     const data = testData[currentDiscipline];
 
     // Если это заглушка (строка)
     if (typeof data === 'string') {
         document.getElementById('questions-list').innerHTML = `<p style="color: var(--text-color); text-align: center;">${data}</p>`;
-        document.getElementById('test-next-btn').classList.add('hidden'); // Прячем кнопку далее
+        closeBtn.classList.remove('hidden'); // Для заглушки сразу показываем кнопку закрыть
         return;
     }
 
     // Запускаем первый вопрос
     currentQuestionIndex = 0;
-    userAnswers = []; // Очищаем старые ответы
+    userAnswers = [];
     showQuestion();
 }
 
@@ -112,10 +120,9 @@ function showQuestion() {
     const questionsList = document.getElementById('questions-list');
     const timerDisplay = document.getElementById('timer-display');
     
-    // Настраиваем кнопку "Далее" или "Завершить"
+    // Создаем или находим кнопку "Далее"
     let nextBtn = document.getElementById('test-next-btn');
     if (!nextBtn) {
-        // Если кнопки нет в HTML, создадим её динамически (или можно добавить в HTML, но я сделаю через JS)
         nextBtn = document.createElement('button');
         nextBtn.id = 'test-next-btn';
         nextBtn.className = 'download-btn';
@@ -134,7 +141,6 @@ function showQuestion() {
 
     const q = data[currentQuestionIndex];
     
-    // Формируем HTML вопроса
     let optionsHtml = '';
     q.options.forEach((opt, optIndex) => {
         optionsHtml += `
@@ -160,7 +166,7 @@ function showQuestion() {
         nextBtn.textContent = "Далее";
     }
 
-    // Удаляем старые обработчики и вешаем новый
+    // Обработчик кнопки
     nextBtn.onclick = () => {
         saveAnswer();
         currentQuestionIndex++;
@@ -177,7 +183,7 @@ function saveAnswer() {
     if (selected) {
         userAnswers.push(parseInt(selected.value));
     } else {
-        userAnswers.push(-1); // -1 означает, что ответ не выбран
+        userAnswers.push(-1); // -1 = нет ответа
     }
 }
 
@@ -197,10 +203,10 @@ function startQuestionTimer() {
 
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            // Время вышло! Автоматически сохраняем пустой ответ и идем дальше
+            // Время вышло! Автоматический переход
             saveAnswer(); 
             currentQuestionIndex++;
-            showQuestion(); // Переход к следующему вопросу
+            showQuestion(); 
         }
     }, 1000);
 }
@@ -210,11 +216,13 @@ function finishTest() {
     clearInterval(timerInterval);
     document.getElementById('timer-display').classList.add('hidden');
     document.getElementById('test-next-btn').classList.add('hidden');
+    
+    // Показываем кнопку "Закрыть" только когда тест закончен
+    document.getElementById('close-modal-btn').classList.remove('hidden'); 
 
     const data = testData[currentDiscipline];
     let correctCount = 0;
 
-    // Сверяем ответы
     data.forEach((q, index) => {
         if (userAnswers[index] === q.correct) {
             correctCount++;
@@ -224,7 +232,7 @@ function finishTest() {
     const resultMsg = document.getElementById('result-message');
     const questionsList = document.getElementById('questions-list');
     
-    questionsList.innerHTML = ''; // Убираем вопросы
+    questionsList.innerHTML = ''; 
     resultMsg.classList.remove('hidden');
 
     if (correctCount === data.length) {
