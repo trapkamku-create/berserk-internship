@@ -1,1 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Стажировка ОСН «Берсерк» — УФСИН</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <!-- Стартовый экран -->
+    <div id="splash-screen" class="splash-screen">
+        <!-- Если у вас нет логотипа, можете временно удалить этот тег img -->
+        <img src="img/logo.png" alt="Логотип" class="splash-emblem" style="width: 150px; height: auto;">
+        <h1 style="color: #d4af37; margin-top: 20px;">ОСН «Берсерк»</h1>
+        <p class="splash-subtitle">Программа стажировки для сотрудников УФСИН</p>
+        <button id="start-btn" class="splash-btn">Начать стажировку</button>
+        <div class="splash-bottom">
+            <p class="splash-footer">Игровой проект Amazing Online</p>
+            <p class="splash-disclaimer">Создано в рамках игровой сферы, не имеет юридической силы</p>
+        </div>
+    </div>
+
+    <!-- Основной портал -->
+    <div id="main-portal" class="main-portal hidden">
+        <header>
+            <img src="img/logo.png" alt="Логотип" class="emblem" style="width: 80px; height: auto;">
+            <h1>ОСН «Берсерк» — Стажировка</h1>
+            <p>Выберите дисциплину для прохождения</p>
+        </header>
+
+        <!-- Сетка дисциплин -->
+        <div class="grid-container">
+            
+            <div class="card" onclick="openDiscipline('law')">
+                <h3>Законодательство</h3>
+                <p>Изучение уставов, прав и обязанностей сотрудника УФСИН.</p>
+                <span class="status">Не начато</span>
+            </div>
+
+            <div class="card" onclick="openDiscipline('med')">
+                <h3>Тактическая медицина</h3>
+                <p>Оказание первой помощи в условиях боя и ЧС.</p>
+                <span class="status">Не начато</span>
+            </div>
+
+            <div class="card" onclick="openDiscipline('negotiations')">
+                <h3>Переговоры</h3>
+                <p>Психология преступника, ведение диалога при захвате заложников.</p>
+                <span class="status">Не начато</span>
+            </div>
+
+            <div class="card" onclick="openDiscipline('assault')">
+                <h3>Штурм</h3>
+                <p>Тактика освобождения заложников, работа в составе группы.</p>
+                <span class="status">Не начато</span>
+            </div>
+
+            <div class="card" onclick="openDiscipline('bomb')">
+                <h3>Разминирование СВУ</h3>
+                <p>Обнаружение и обезвреживание самодельных взрывных устройств.</p>
+                <span class="status">Не начато</span>
+            </div>
+
+        </div>
+
+        <footer>
+            <p>Игровой проект Amazing Online</p>
+        </footer>
+        <button id="theme-toggle" class="theme-toggle">🌙</button>
+    </div>
+
+    <!-- Модальное окно для дисциплины -->
+    <div id="discipline-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="modal-title" style="color: #d4af37;">Название дисциплины</h2>
+            <div id="modal-body" style="color: #e0e0e0; text-align: left; line-height: 1.6; margin-top: 20px; max-height: 400px; overflow-y: auto;">
+                <!-- Сюда будет подставляться текст -->
+            </div>
+            <button class="download-btn" style="margin-top: 20px;" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
