@@ -45,8 +45,10 @@ const testData = {
 };
 
 let currentDiscipline = null;
-let timerInterval = null; // Переменная для хранения интервала таймера
-let timeLeft = 15; // Время на ответ в секундах
+let currentQuestionIndex = 0; // Индекс текущего вопроса
+let userAnswers = []; // Массив для сохранения ответов пользователя
+let timerInterval = null; 
+let timeLeft = 15; 
 
 // --- Открытие дисциплины ---
 function openDiscipline(id) {
@@ -56,14 +58,16 @@ function openDiscipline(id) {
     const startBtn = document.getElementById('start-test-btn');
     const testContainer = document.getElementById('test-container');
     const timerDisplay = document.getElementById('timer-display');
+    const resultMsg = document.getElementById('result-message');
 
-    // Сброс состояния модального окна
+    // Сброс состояния
     testContainer.classList.add('hidden');
-    document.getElementById('result-message').classList.add('hidden');
-    timerDisplay.classList.add('hidden'); // Скрываем таймер при открытии
-    clearInterval(timerInterval); // Останавливаем старый таймер, если был
+    resultMsg.classList.add('hidden');
+    timerDisplay.classList.add('hidden');
+    clearInterval(timerInterval);
+    currentQuestionIndex = 0;
+    userAnswers = [];
     
-    // Устанавливаем заголовок в зависимости от ID
     const titles = {
         law: "Законодательство",
         med: "Тактическая медицина",
@@ -73,7 +77,6 @@ function openDiscipline(id) {
     };
     title.textContent = titles[id] || "Дисциплина";
 
-    // Показываем кнопку "Начать тест"
     startBtn.classList.remove('hidden');
     startBtn.textContent = "Начать тест";
 
@@ -84,111 +87,159 @@ function openDiscipline(id) {
 function startTest() {
     const startBtn = document.getElementById('start-test-btn');
     const testContainer = document.getElementById('test-container');
-    const questionsList = document.getElementById('questions-list');
-    const timerDisplay = document.getElementById('timer-display');
-
+    
     startBtn.classList.add('hidden');
     testContainer.classList.remove('hidden');
-    questionsList.innerHTML = '';
 
     const data = testData[currentDiscipline];
 
-    // Если это заглушка (строка), выводим текст
+    // Если это заглушка (строка)
     if (typeof data === 'string') {
-        questionsList.innerHTML = `<p style="color: var(--text-color); text-align: center;">${data}</p>`;
+        document.getElementById('questions-list').innerHTML = `<p style="color: var(--text-color); text-align: center;">${data}</p>`;
+        document.getElementById('test-next-btn').classList.add('hidden'); // Прячем кнопку далее
         return;
     }
 
-    // Генерация вопросов
-    data.forEach((q, index) => {
-        const block = document.createElement('div');
-        block.className = 'question-block';
-        
-        let optionsHtml = '';
-        q.options.forEach((opt, optIndex) => {
-            optionsHtml += `
-                <label class="option-label">
-                    <input type="radio" name="q${index}" value="${optIndex}">
-                    ${opt}
-                </label>
-            `;
-        });
-
-        block.innerHTML = `
-            <div class="question-text">${index + 1}. ${q.question}</div>
-            ${optionsHtml}
-        `;
-        questionsList.appendChild(block);
-    });
-
-    // Запуск таймера
-    startTimer(timerDisplay);
+    // Запускаем первый вопрос
+    currentQuestionIndex = 0;
+    userAnswers = []; // Очищаем старые ответы
+    showQuestion();
 }
 
-// --- Логика таймера ---
-function startTimer(displayElement) {
-    timeLeft = 15; // Сброс времени
-    displayElement.classList.remove('hidden');
-    displayElement.textContent = `00:${timeLeft < 10 ? '0' + timeLeft : timeLeft}`;
-    displayElement.style.color = '#f87171'; // Красный цвет для таймера
+// --- Показ текущего вопроса ---
+function showQuestion() {
+    const data = testData[currentDiscipline];
+    const questionsList = document.getElementById('questions-list');
+    const timerDisplay = document.getElementById('timer-display');
+    
+    // Настраиваем кнопку "Далее" или "Завершить"
+    let nextBtn = document.getElementById('test-next-btn');
+    if (!nextBtn) {
+        // Если кнопки нет в HTML, создадим её динамически (или можно добавить в HTML, но я сделаю через JS)
+        nextBtn = document.createElement('button');
+        nextBtn.id = 'test-next-btn';
+        nextBtn.className = 'download-btn';
+        nextBtn.style.marginTop = '15px';
+        document.getElementById('test-container').appendChild(nextBtn);
+    }
+    
+    // Очищаем прошлый вопрос
+    questionsList.innerHTML = '';
+    
+    // Если вопросы закончились — показываем результат
+    if (currentQuestionIndex >= data.length) {
+        finishTest();
+        return;
+    }
+
+    const q = data[currentQuestionIndex];
+    
+    // Формируем HTML вопроса
+    let optionsHtml = '';
+    q.options.forEach((opt, optIndex) => {
+        optionsHtml += `
+            <label class="option-label">
+                <input type="radio" name="current_q" value="${optIndex}">
+                ${opt}
+            </label>
+        `;
+    });
+
+    questionsList.innerHTML = `
+        <div class="question-block">
+            <div class="question-text">Вопрос ${currentQuestionIndex + 1} из ${data.length}. ${q.question}</div>
+            ${optionsHtml}
+        </div>
+    `;
+
+    // Настройка кнопки "Далее" / "Завершить"
+    nextBtn.classList.remove('hidden');
+    if (currentQuestionIndex === data.length - 1) {
+        nextBtn.textContent = "Завершить";
+    } else {
+        nextBtn.textContent = "Далее";
+    }
+
+    // Удаляем старые обработчики и вешаем новый
+    nextBtn.onclick = () => {
+        saveAnswer();
+        currentQuestionIndex++;
+        showQuestion();
+    };
+
+    // Запускаем таймер на этот вопрос
+    startQuestionTimer();
+}
+
+// --- Сохранение ответа ---
+function saveAnswer() {
+    const selected = document.querySelector('input[name="current_q"]:checked');
+    if (selected) {
+        userAnswers.push(parseInt(selected.value));
+    } else {
+        userAnswers.push(-1); // -1 означает, что ответ не выбран
+    }
+}
+
+// --- Таймер на вопрос ---
+function startQuestionTimer() {
+    const timerDisplay = document.getElementById('timer-display');
+    timeLeft = 15;
+    timerDisplay.classList.remove('hidden');
+    timerDisplay.textContent = `00:${timeLeft < 10 ? '0' + timeLeft : timeLeft}`;
+    timerDisplay.style.color = '#f87171';
 
     clearInterval(timerInterval);
     
     timerInterval = setInterval(() => {
         timeLeft--;
-        displayElement.textContent = `00:${timeLeft < 10 ? '0' + timeLeft : timeLeft}`;
-
-        if (timeLeft <= 5) {
-            displayElement.style.color = '#ef4444'; // Более яркий красный при последних секундах
-        }
+        timerDisplay.textContent = `00:${timeLeft < 10 ? '0' + timeLeft : timeLeft}`;
 
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            displayElement.textContent = "00:00";
-            // Время вышло - автоматически завершаем тест
-            checkAnswers(true); // Передаем true, чтобы показать сообщение о времени
+            // Время вышло! Автоматически сохраняем пустой ответ и идем дальше
+            saveAnswer(); 
+            currentQuestionIndex++;
+            showQuestion(); // Переход к следующему вопросу
         }
     }, 1000);
 }
 
-// --- Проверка ответов ---
-// isTimeOut - флаг, указывающий, что время вышло
-function checkAnswers(isTimeOut = false) {
-    clearInterval(timerInterval); // Останавливаем таймер при завершении
-    document.getElementById('timer-display').classList.add('hidden'); // Скрываем таймер
+// --- Завершение теста ---
+function finishTest() {
+    clearInterval(timerInterval);
+    document.getElementById('timer-display').classList.add('hidden');
+    document.getElementById('test-next-btn').classList.add('hidden');
 
     const data = testData[currentDiscipline];
-    if (typeof data === 'string') return; // Если это заглушка, ничего не проверяем
-
     let correctCount = 0;
-    let total = data.length;
 
+    // Сверяем ответы
     data.forEach((q, index) => {
-        const selected = document.querySelector(`input[name="q${index}"]:checked`);
-        if (selected && parseInt(selected.value) === q.correct) {
+        if (userAnswers[index] === q.correct) {
             correctCount++;
         }
     });
 
     const resultMsg = document.getElementById('result-message');
+    const questionsList = document.getElementById('questions-list');
+    
+    questionsList.innerHTML = ''; // Убираем вопросы
     resultMsg.classList.remove('hidden');
 
-    if (isTimeOut) {
-        resultMsg.textContent = `Время вышло! Вы не успели ответить.`;
-        resultMsg.style.color = "#f87171";
-    } else if (correctCount === total) {
-        resultMsg.textContent = `Отлично! Вы ответили правильно на все ${total} вопросов. Тест сдан.`;
-        resultMsg.style.color = "#4ade80"; // Зеленый
+    if (correctCount === data.length) {
+        resultMsg.textContent = `Отлично! Вы ответили правильно на все ${data.length} вопросов. Тест сдан.`;
+        resultMsg.style.color = "#4ade80";
     } else {
-        resultMsg.textContent = `Вы ответили правильно на ${correctCount} из ${total}. Попробуйте еще раз.`;
-        resultMsg.style.color = "#f87171"; // Красный
+        resultMsg.textContent = `Вы ответили правильно на ${correctCount} из ${data.length}. Попробуйте еще раз.`;
+        resultMsg.style.color = "#f87171";
     }
 }
 
 // --- Закрытие модального окна ---
 function closeModal() {
-    clearInterval(timerInterval); // Останавливаем таймер при закрытии
-    document.getElementById('timer-display').classList.add('hidden'); // Скрываем таймер
+    clearInterval(timerInterval);
+    document.getElementById('timer-display').classList.add('hidden');
     document.getElementById('discipline-modal').classList.add('hidden');
 }
 
