@@ -75,19 +75,19 @@
                 </div>
             </div>
             
-            <!-- Кнопка старта (видна в начале) -->
+            <!-- Кнопка старта -->
             <button id="start-test-btn" class="download-btn hidden" onclick="startTest()">Начать тест</button>
             
-            <!-- Контейнер для теста (скрыт в начале) -->
+            <!-- Контейнер для теста -->
             <div id="test-container" class="hidden" style="margin-top: 20px;">
                 <div id="questions-list" style="max-height: 400px; overflow-y: auto; text-align: left; padding-right: 10px;">
-                    <!-- Вопросы подгрузятся скриптом -->
+                    <!-- Вопросы -->
                 </div>
-                <button class="download-btn" onclick="checkAnswers()">Завершить</button>
+                <!-- Кнопка Далее/Завершить создается в JS -->
                 <p id="result-message" class="result-msg hidden"></p>
             </div>
 
-            <!-- Кнопка закрытия -->
+            <!-- Кнопка закрытия (ДОБАВЛЕН ID) -->
             <button id="close-modal-btn" class="download-btn" style="background-color: #4b5563; color: #fff; margin-top: 10px;" onclick="closeModal()">Закрыть</button>
         </div>
     </div>
