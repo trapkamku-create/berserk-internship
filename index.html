@@ -10,7 +10,6 @@
 
     <!-- Стартовый экран -->
     <div id="splash-screen" class="splash-screen">
-        <!-- Если у вас нет логотипа, можете временно удалить этот тег img -->
         <h1 style="color: #d4af37; margin-top: 20px;">ОСН «Берсерк»</h1>
         <p class="splash-subtitle">Программа стажировки для сотрудников УФСИН</p>
         <button id="start-btn" class="splash-btn">Начать стажировку</button>
@@ -27,9 +26,7 @@
             <p>Выберите дисциплину для прохождения</p>
         </header>
 
-        <!-- Сетка дисциплин -->
         <div class="grid-container">
-            
             <div class="card" onclick="openDiscipline('law')">
                 <h3>Законодательство</h3>
                 <p>Изучение уставов, прав и обязанностей сотрудника УФСИН.</p>
@@ -59,7 +56,6 @@
                 <p>Обнаружение и обезвреживание самодельных взрывных устройств.</p>
                 <span class="status">Не начато</span>
             </div>
-
         </div>
 
         <footer>
@@ -68,14 +64,25 @@
         <button id="theme-toggle" class="theme-toggle">🌙</button>
     </div>
 
-    <!-- Модальное окно для дисциплины -->
+    <!-- Модальное окно -->
     <div id="discipline-modal" class="modal hidden">
         <div class="modal-content">
             <h2 id="modal-title" style="color: #d4af37;">Название дисциплины</h2>
-            <div id="modal-body" style="color: #e0e0e0; text-align: left; line-height: 1.6; margin-top: 20px; max-height: 400px; overflow-y: auto;">
-                <!-- Сюда будет подставляться текст -->
+            
+            <!-- Кнопка старта (видна в начале) -->
+            <button id="start-test-btn" class="download-btn hidden" onclick="startTest()">Начать тест</button>
+            
+            <!-- Контейнер для теста (скрыт в начале) -->
+            <div id="test-container" class="hidden" style="margin-top: 20px;">
+                <div id="questions-list" style="max-height: 400px; overflow-y: auto; text-align: left; padding-right: 10px;">
+                    <!-- Вопросы подгрузятся скриптом -->
+                </div>
+                <button class="download-btn" onclick="checkAnswers()">Завершить</button>
+                <p id="result-message" class="result-msg hidden"></p>
             </div>
-            <button class="download-btn" style="margin-top: 20px;" onclick="closeModal()">Закрыть</button>
+
+            <!-- Кнопка закрытия -->
+            <button id="close-modal-btn" class="download-btn" style="background-color: #4b5563; color: #fff; margin-top: 10px;" onclick="closeModal()">Закрыть</button>
         </div>
     </div>
 
