@@ -67,7 +67,13 @@
     <!-- Модальное окно -->
     <div id="discipline-modal" class="modal hidden">
         <div class="modal-content">
-            <h2 id="modal-title" style="color: #d4af37;">Название дисциплины</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 id="modal-title" style="color: #d4af37; margin: 0;">Название дисциплины</h2>
+                <!-- ТАЙМЕР -->
+                <div id="timer-display" class="hidden" style="font-size: 24px; font-weight: bold; color: #f87171;">
+                    15:00
+                </div>
+            </div>
             
             <!-- Кнопка старта (видна в начале) -->
             <button id="start-test-btn" class="download-btn hidden" onclick="startTest()">Начать тест</button>
